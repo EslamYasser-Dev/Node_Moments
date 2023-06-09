@@ -1,0 +1,21 @@
+{
+  "name": "nodeproj",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js; echo have run",
+    "dev": "nodemon index.js"
+  },
+  "author": "eslam yasser",
+  "license": "MIT",
+  "keywords": [
+    "day2"
+  ],
+  "dependencies": {
+    "commander": "^10.0.1",
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security"
+  },
+  "description": ""
+}

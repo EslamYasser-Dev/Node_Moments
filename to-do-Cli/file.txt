@@ -1,0 +1,18 @@
+npm install commander
+{
+  "name": "nodeproj",
+  "version": "1.0.0",//علامة الهات ^ معناها نزل المينور بس لو مش موجودة مش هيعمل ابديت
+  
+  "main": "index.js",
+  "scripts": { //بتكتب اللي انتا عايزة يتنفذ اول ما تدي كوماند start
+    "test": "echo \"Error: no test specified\" && exit 1", //unit testing script
+    "start":"node index.js; echo have run", // لما تكتب الكوماند بينفذ الكود اللي جوه فايل الجافاسكريبت
+    "dev":"nodemon index.js"
+  },
+  "author": "eslam yasser",
+  "license": "MIT",
+  "keywords": [
+    "day2"
+  ],
+  "description": "" //اي حاجة انت بتعملها انستول من ان بي ام 
+}
