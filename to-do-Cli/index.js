@@ -1,66 +1,84 @@
-// const e = require('encryption') 
 const { program } = require('commander');
 const fs = require('fs');
-const crypto = require('crypto');
-const algorithm = 'aes-256-cbc';      //Using AES encryption
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
+const crypto = require('node:crypto');
+
+const algorithm = '';
+const key = "this is key"
+// const iv = '';
 
 
+const encrypt = (text) => {
+  const cipher = crypto.createCipheriv(algorithm,key,iv)
+  let encrypted = cipher.update(text,'utf-8','hex')
+  encrypted += cipher.final('hex');
+  console.log(encrypted);
+}
 
-program
-  .name('Todo List Cli')
-  .description('Encrypted To do list cli')
-  .version('0.8.0');
-
-
-  const encrypt = (text) =>{
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
- }
+const decrypt = (encryptText) => {
+  const deCiphr = crypto.createDecipheriv(algorithm,key,iv);
+  let decryptText = deCiphr.update(encryptText,'hex','utf-8');
+  decryptText +=deCiphr.final('utf-8');
+  console.log(decryptText);
+};
 
 const add = (title, deadline, isDone) => {
-
   let data = [];
-    const todoFile = fs.readFileSync('./files/thelist.txt', 'utf-8');
-    data = JSON.parse(todoFile);
-  
+  const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
+  data = JSON.parse(todoFile);
+let t = encrypt(title);
+let d = encrypt(deadline);
   const id = data.length > 0 ? data[data.length - 1].id + 1 : 0;
-  data.push({ id, title, deadline, isDone:isDone||'to-do' });
-
-  let encData = encrypt(JSON.stringify(data));
-  
-  //////////////////////////////////////////////////////////
-  fs.writeFileSync('./files/thelist.txt',JSON.stringify(encData));
+  data.push({ id: id, title: t, deadline: d || 'will set later', isDone: isDone || 'to-do' });
+  fs.writeFileSync('./files/thelist.json', JSON.stringify(data));
   console.log("Successfully added note, waiting to be completed.");
 };
-
-// method to list all notes
 const list = (isDone) => {
-  const data = JSON.parse(fs.readFileSync('files/thelist.txt', 'utf-8'));
-  JSON.parse(decrypt(data));
-  const mydata = [];
+  let x = crypto.randomBytes(32)
+  console.log(x)
+  const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
+  if (todoFile) {
+    const data = JSON.parse(todoFile);
+    const mydata = data.filter((item) => {
+      if (isDone === undefined) {
+        return item;
+      } else {
+        return item.isDone === isDone;        
+      }
+    });
 
-  for (let j = 0; j < data.length; j++) {
-    if(isDone === data[j].isDone){ mydata.push(data[j]); console.log(mydata);}else{
-      mydata[j] = data[j]}
+    // Decrypt the title and deadline values in each item
+    for (let i = 0; i < mydata.length; i++) {
+      mydata[i].title = decrypt(mydata[i].title);
+      mydata[i].deadline = decrypt(mydata[i].deadline);
+    }
+
+    console.log(mydata);
+  } else {
+    console.log('No notes found for this is');
   }
-  console.log()
 };
 
-// method to edit an existing note
 const edit = (id, newtitle, deadline, isDone) => {
   const ID = Number(id); // to avoid NaN
-  const data = JSON.parse(fs.readFileSync('/files/thelist.txt', 'utf-8'));
+  let data = [];
+  const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
+  if (todoFile) {
+    data = JSON.parse(decrypt(JSON.parse(todoFile)));
+  }
+
   let found = false;
   for (let i = 0; i < data.length; i++) {
     if (data[i].id === ID) {
-      data[i].title = newtitle;
-      data[i].deadline = deadline;
-      data[i].isDone = isDone;
-      fs.writeFileSync('/files/thelist.txt', JSON.stringify(data));
+      if (newtitle) {
+        data[i].title = newtitle;
+      }
+      if (deadline) {
+        data[i].deadline = deadline;
+      }
+      if (isDone) {
+        data[i].isDone = isDone;
+      }
+      fs.writeFileSync('./files/thelist.txt', JSON.stringify(encrypt(JSON.stringify(data))));
       console.log(`Note with ID ${ID} has been edited and saved.`);
       found = true;
       break;
@@ -72,9 +90,14 @@ const edit = (id, newtitle, deadline, isDone) => {
 };
 
 program
+  .name('Todo List Cli')
+  .description('Encrypted To do list cli')
+  .version('0.8.0');
+
+program
   .command('add <title> <deadline>')
   .description('Add a new note')
-  .argument('title')
+  .argument('<title>')
   .option('-d, --done', 'Mark note as done')
   .action((title, deadline, options) => {
     add(title, deadline, options.done ? 'done' : 'to-do');
@@ -92,7 +115,7 @@ program
   .description('Edit an existing note')
   .option('-d, --done', 'Mark note as done')
   .action((id, newtitle, deadline, options) => {
-    edit(id, newtitle, deadline, options.done ? 'done' : 'to-do');
+    edit(id, newtitle, deadline, options.done ? 'done' : undefined);
   });
 
 program.parse();
