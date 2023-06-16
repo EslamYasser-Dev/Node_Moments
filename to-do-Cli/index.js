@@ -1,9 +1,12 @@
 const { program } = require('commander');
 const fs = require('fs');
-const crypto = require('node:crypto');
+const crypto = require('node:crypto'); 
  
+
+
+//Update the encrytption method to the build-in updated one 
 const encrypt = (text, key, iv) => {
-  const cipher = crypto.createCipheriv('aes-128-ccm', key, iv, {
+  let cipher = crypto.createCipheriv('aes-128-ccm', key, iv, {
     authTagLength: 16  // 16 bytes = 128 bits
   });
   let encrypted = cipher.update(text, 'utf-8', 'hex');
@@ -14,13 +17,11 @@ const encrypt = (text, key, iv) => {
 const key = crypto.randomBytes(16);  // 16 bytes = 128 bits
 const iv = crypto.randomBytes(12);   // 12 bytes = 96 bits
 
-const encryptedText = encrypt('dfdssdfs', key, iv);
-console.log(encryptedText);
-
-
-const decrypt = (encryptText) => {
-  const deCiphr = crypto.createDecipheriv('aes-128-ccm',key,iv);
-  let decryptText = deCiphr.update(encryptText,'hex','utf-8');
+const decrypt = (encryptText,key,iv) => {
+  let deCiphr = crypto.createDecipheriv('aes-128-ccm',key,iv,{
+    authTagLength: 16  // 16 bytes = 128 bits
+  });
+  let decryptText = deCiphr.update(encryptText,'hex','utf-8'); // lets begain decrypt to the UTF-8 text from encrypted Hex
   decryptText +=deCiphr.final('utf-8');
   console.log(decryptText);
 };
@@ -35,7 +36,11 @@ let d = encrypt(deadline,key,iv);
   data.push({ id: id, title: t, deadline: d || 'will set later', isDone: isDone || 'to-do' });
   fs.writeFileSync('./files/thelist.json', JSON.stringify(data));
   console.log("Successfully added note, waiting to be completed.");
-};
+}
+
+
+
+
 const list = (isDone) => {
   let x = crypto.randomBytes(32)
   console.log(x)
