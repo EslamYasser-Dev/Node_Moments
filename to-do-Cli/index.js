@@ -47,6 +47,7 @@ const list = (isDone) => {
   const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
   if (todoFile) {
     const data = JSON.parse(todoFile);
+    decrypt(data.title)
     const mydata = data.filter((item) => {
       if (isDone === undefined) {
         return item;
@@ -72,11 +73,7 @@ const edit = (id, newtitle, deadline, isDone) => {
   let data = [];
   const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
   if (todoFile) {
-    data = JSON.parse(decrypt(JSON.parse(todoFile)));
-  }
-
-  let found = false;
-  for (let i = 0; i < data.length; i++) {
+    data = JSON.parse(JSON.parse(todoFile))
     if (data[i].id === ID) {
       if (newtitle) {
         data[i].title = newtitle;
