@@ -74,6 +74,8 @@ const edit = (id, newtitle, deadline, isDone) => {
   const todoFile = fs.readFileSync('./files/thelist.json', 'utf-8');
   if (todoFile) {
     data = JSON.parse(JSON.parse(todoFile))
+    decrypt(data.title)
+    decrypt(data.deadline)
     if (data[i].id === ID) {
       if (newtitle) {
         data[i].title = newtitle;
@@ -87,7 +89,6 @@ const edit = (id, newtitle, deadline, isDone) => {
       fs.writeFileSync('./files/thelist.txt', JSON.stringify(encrypt(JSON.stringify(data))));
       console.log(`Note with ID ${ID} has been edited and saved.`);
       found = true;
-      break;
     }
   }
   if (!found) {
